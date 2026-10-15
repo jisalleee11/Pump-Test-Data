@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c5ea6">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<title>Pump Test Data Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one working column per screen; the readings grid mirrors the paper sheet (shaded target column, rows 1-12). */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #15202b;
+  --muted: #5a6774;
+  --line: #c9d1d9;
+  --shade: #e3e8ed;
+  --accent: #1c5ea6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2ecf8;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --ok: #1e7b46;
+  --paper: #ffffff;
+  --paper-ink: #111111;
+  --paper-line: #2a2a2a;
+  --paper-shade: #d9d9d9;
+  --font-ui: "Barlow", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-num: "JetBrains Mono", ui-monospace, "Roboto Mono", Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f161d; --surface: #18222c; --ink: #e5ebf0; --muted: #94a2af; --line: #2e3d4b;
+    --shade: #22303d; --accent: #5c9ce6; --accent-ink: #0b1622; --accent-soft: #1b2f47;
+    --danger: #f2766b; --danger-bg: #3a1916; --ok: #4cc27e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f161d; --surface: #18222c; --ink: #e5ebf0; --muted: #94a2af; --line: #2e3d4b;
+  --shade: #22303d; --accent: #5c9ce6; --accent-ink: #0b1622; --accent-soft: #1b2f47;
+  --danger: #f2766b; --danger-bg: #3a1916; --ok: #4cc27e;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.4; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.muted { color: var(--muted); }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+
+/* Top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 10px; }
+.brand { font-weight: 700; font-size: 20px; letter-spacing: .02em; text-transform: uppercase; }
+.brand span { color: var(--muted); font-weight: 500; }
+.nav { display: flex; gap: 4px; }
+.navbtn { border: 0; background: none; padding: 10px 16px; border-radius: var(--radius); font-weight: 600; font-size: 16px; color: var(--muted); cursor: pointer; min-height: 44px; }
+.navbtn.on { background: var(--accent-soft); color: var(--accent); }
+.preview-note { background: var(--accent-soft); color: var(--ink); font-size: 14px; }
+.preview-note .wrap { padding-block: 8px; }
+
+main.wrap { padding-block: 20px 40px; display: flex; flex-direction: column; gap: 20px; }
+section { display: flex; flex-direction: column; gap: 16px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; font-size: 16px; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.xl { min-height: 60px; padding: 0 32px; font-size: 19px; }
+.btn.sm { min-height: 40px; padding: 0 14px; font-size: 15px; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--danger); }
+.btn.danger:hover { border-color: var(--danger); }
+.btn[data-armed] { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.card-h { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; }
+.card-h .hint { font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+.eyebrow { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+.big { font-size: 28px; font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.section-head h2 { font-size: 22px; }
+
+/* Fields */
+.fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.f > span:not(.inline):not(.actions) { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.f input, .f select, .f textarea, .search, .cell {
+  width: 100%; min-height: 52px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--surface); font-size: 18px;
+}
+.f textarea { min-height: 72px; resize: vertical; }
+.f input.num, .cell.num { font-family: var(--font-num); }
+.miss { border-color: var(--danger) !important; background: var(--danger-bg) !important; }
+.inline { display: flex; gap: 8px; }
+.inline input { flex: 1 1 auto; min-width: 0; }
+.inline select { flex: 0 0 92px; }
+.readout { min-height: 52px; display: flex; align-items: center; padding: 0 12px; border-radius: 6px; background: var(--shade); font-family: var(--font-num); font-size: 18px; }
+.search { max-width: 280px; min-height: 48px; font-size: 16px; }
+
+/* Readings grid */
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; }
+.readings { width: 100%; min-width: 820px; }
+.readings th { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; padding: 0 4px 8px; vertical-align: bottom; line-height: 1.2; }
+.readings th small { display: block; text-transform: none; letter-spacing: 0; font-weight: 500; }
+.readings td { padding: 3px; }
+.readings td.idx { width: 40px; text-align: center; font-family: var(--font-num); color: var(--muted); font-size: 15px; }
+.readings tr.opt td.idx { opacity: .6; }
+.readings input { width: 100%; min-height: 48px; text-align: center; font-family: var(--font-num); font-size: 19px; border: 1.5px solid var(--line); border-radius: 6px; background: var(--surface); padding: 0 6px; font-variant-numeric: tabular-nums; }
+.readings td.tgt input { background: var(--shade); }
+.readings tr.opt-start td { padding-top: 14px; }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+
+.missing { border: 1.5px solid var(--danger); background: var(--danger-bg); border-radius: var(--radius); padding: 14px 18px; }
+.missing strong { color: var(--danger); }
+.missing ul { margin: 6px 0 0; padding-left: 20px; columns: 2 220px; }
+
+.actionbar { position: sticky; bottom: 0; z-index: 5; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.actionbar .grow { flex: 1 1 200px; display: flex; flex-direction: column; }
+.actionbar .left { font-weight: 600; }
+.actionbar .left.done { color: var(--ok); }
+.test-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.test-head h1 { font-size: 28px; }
+
+/* Lists */
+.list { width: 100%; min-width: 640px; }
+.list th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; padding: 8px 10px; border-bottom: 1.5px solid var(--line); }
+.list td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.list td.strong { font-weight: 600; }
+.row-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.equip-table { width: 100%; min-width: 420px; }
+.equip-table th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; padding: 0 4px 6px; }
+.equip-table td { padding: 4px; }
+.equip-table td:last-child { width: 1%; }
+.equip-table .cell { min-height: 48px; font-size: 17px; }
+
+/* Data sheet (paper replica, same in both themes) */
+.sheet { background: var(--paper); color: var(--paper-ink); border: 1px solid var(--line); border-radius: 4px; padding: 28px 32px; min-width: 900px; font-family: var(--font-ui); }
+.sheet dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; }
+.sheet dt { font-size: 13px; }
+.sheet dd { margin: 0; font-family: var(--font-num); font-size: 14px; border-bottom: 1px solid var(--paper-line); min-height: 20px; padding: 0 4px; }
+.sh-top { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 14px; }
+.sh-title { font-size: 26px; font-weight: 700; letter-spacing: .02em; }
+.sh-based { margin-top: 6px; font-size: 14px; }
+.sh-id { min-width: 280px; }
+.sh-mid { display: flex; gap: 24px; align-items: flex-start; }
+.sh-table { border: 1.5px solid var(--paper-line); }
+.sh-table th { font-size: 12.5px; font-weight: 700; padding: 4px 8px; border: 1px solid var(--paper-line); text-align: center; line-height: 1.15; }
+.sh-table td { border: 1px solid var(--paper-line); padding: 3px 8px; min-width: 84px; height: 25px; text-align: center; font-family: var(--font-num); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.sh-table td.idx { min-width: 28px; font-size: 12px; }
+.sh-table .shade { background: var(--paper-shade); }
+.sh-side { min-width: 220px; }
+.sh-foot { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 28px; margin-top: 18px; }
+.sh-sub { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.sh-note { margin-top: 16px; font-size: 11.5px; display: flex; justify-content: space-between; gap: 12px; }
+.sheet-scroll { overflow-x: auto; }
+
+#toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 12px 20px; border-radius: var(--radius); font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+#toast.show { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+
+@media (max-width: 600px) {
+  .brand span { display: none; }
+  .big { font-size: 22px; }
+  .btn.xl { width: 100%; }
+}
+
+@media print {
+  @page { size: letter landscape; margin: 0.35in; }
+  body { background: #fff; }
+  .no-print, .topbar, .preview-note, #toast { display: none !important; }
+  main.wrap { padding: 0; max-width: none; }
+  .sheet-scroll { overflow: visible; }
+  .sheet { border: 0; padding: 0; min-width: 0; }
+}
+</style>
+
+<header class="topbar no-print">
+  <div class="wrap bar">
+    <div class="brand">Pump Test <span>Data Sheet</span></div>
+    <nav class="nav" aria-label="Main">
+      <button id="navHome" class="navbtn on" type="button">Tests</button>
+      <button id="navEquip" class="navbtn" type="button">Equipment</button>
+    </nav>
+  </div>
+</header>
+<div id="previewNote" class="preview-note no-print" hidden>
+  <div class="wrap">Preview copy. Save PDF and Download CSV work once the app is installed on the tablet.</div>
+</div>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section id="view-home">
+    <div id="draftCard" class="card" hidden>
+      <div class="eyebrow">Test in progress</div>
+      <div class="big" id="draftTitle"></div>
+      <div class="muted" id="draftMeta"></div>
+      <div class="actions">
+        <button id="btnResume" class="btn primary xl" type="button">Resume test</button>
+        <button id="btnDiscard" class="btn ghost danger" type="button">Discard test</button>
+      </div>
+    </div>
+    <div id="newCard" class="card">
+      <div class="eyebrow">Ready</div>
+      <div class="big">No test in progress</div>
+      <div class="actions"><button id="btnNew" class="btn primary xl" type="button">Start new test</button></div>
+    </div>
+
+    <div class="section-head">
+      <h2>Completed tests</h2>
+      <input id="search" class="search" type="search" placeholder="Find pump #" aria-label="Find pump number">
+    </div>
+    <div class="card">
+      <div class="tablewrap">
+        <table class="list">
+          <thead><tr><th>Date</th><th>Pump #</th><th>Pump size</th><th>Loop</th><th>Test tech</th><th></th></tr></thead>
+          <tbody id="testRows"></tbody>
+        </table>
+      </div>
+      <p id="emptyTests" class="muted" hidden></p>
+    </div>
+  </section>
+
+  <!-- TEST ENTRY -->
+  <section id="view-test" hidden>
+    <div class="test-head">
+      <h1 id="testTitle">New test</h1>
+      <button id="btnTestHome" class="btn ghost" type="button">Back to tests</button>
+    </div>
+
+    <div id="missingPanel" class="missing" role="alert" hidden>
+      <strong id="missingCount"></strong>
+      <ul id="missingList"></ul>
+    </div>
+
+    <div class="card">
+      <h2 class="card-h">Pump</h2>
+      <div class="fields">
+        <label class="f"><span>Pump #</span><input id="f-pumpNo" data-f="pumpNo" class="num" autocomplete="off" enterkeyhint="next"></label>
+        <label class="f"><span>Pump size</span><input id="f-pumpSize" data-f="pumpSize" autocomplete="off" placeholder="H6x4x11F" enterkeyhint="next"></label>
+        <label class="f"><span>Imp. Ø (in)</span><input id="f-impDia" data-f="impDia" class="num" inputmode="decimal" autocomplete="off" enterkeyhint="next"></label>
+        <label class="f"><span>Based on (GPM)</span><input id="f-basedOn" data-f="basedOn" class="num" inputmode="decimal" autocomplete="off" placeholder="optional" enterkeyhint="next"></label>
+        <label class="f"><span>Loop</span><input id="f-loop" data-f="loop" autocomplete="off" enterkeyhint="next"></label>
+        <label class="f"><span>Line Hz</span><input id="f-lineHz" data-f="lineHz" class="num" inputmode="decimal" autocomplete="off" placeholder="59.92" enterkeyhint="next"></label>
+        <label class="f"><span>Date</span><input id="f-date" data-f="date" type="date"></label>
+        <label class="f"><span>Test tech</span><input id="f-tech" data-f="tech" autocomplete="off" enterkeyhint="next"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-h">Readings <span class="hint">Rows 1–10 required. Rows 11–12 only if used. Target flow can be a range, e.g. 954-994.</span></h2>
+      <div class="tablewrap"><table class="readings" id="readings"></table></div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <h2 class="card-h">Gauges and pipe</h2>
+        <div class="fields">
+          <label class="f"><span>Suction gauge height (in)</span>
+            <span class="inline"><input id="f-sghIn" data-f="sghIn" class="num" inputmode="decimal" autocomplete="off" enterkeyhint="next"><select id="f-sghFrac" data-f="sghFrac" aria-label="Suction gauge height fraction"></select></span></label>
+          <label class="f"><span>Discharge gauge height (in)</span>
+            <span class="inline"><input id="f-dghIn" data-f="dghIn" class="num" inputmode="decimal" autocomplete="off" enterkeyhint="next"><select id="f-dghFrac" data-f="dghFrac" aria-label="Discharge gauge height fraction"></select></span></label>
+          <div class="f"><span>Gauge ht dif.</span><div class="readout" id="gaugeDiff">—</div></div>
+          <label class="f"><span>Suction pipe at tap (in)</span><input id="f-sPipe" data-f="sPipe" class="num" inputmode="decimal" autocomplete="off" enterkeyhint="next"></label>
+          <label class="f"><span>Discharge pipe at tap (in)</span><input id="f-dPipe" data-f="dPipe" class="num" inputmode="decimal" autocomplete="off" enterkeyhint="next"></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-h">Calibration and traceability</h2>
+        <div class="cal" id="calFields"></div>
+        <p class="muted" style="margin:0;font-size:14px">Missing a gauge or motor? Add it on the Equipment screen.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="f"><span>Notes</span><textarea id="f-notes" data-f="notes" rows="2" placeholder="Rev, retest, anything unusual"></textarea></label>
+    </div>
+
+    <div class="actionbar">
+      <div class="grow">
+        <span id="leftCount" class="left"></span>
+        <span id="clock" class="muted"></span>
+      </div>
+      <button id="btnComplete" class="btn primary xl" type="button">Complete test</button>
+    </div>
+  </section>
+
+  <!-- COMPLETED SHEET -->
+  <section id="view-sheet" hidden>
+    <div class="test-head no-print">
+      <h1 id="sheetTitle">Test sheet</h1>
+      <div class="actions">
+        <button id="btnPdf" class="btn primary" type="button">Save PDF</button>
+        <button id="btnCsv" class="btn" type="button">Download CSV</button>
+        <button id="btnSheetHome" class="btn ghost" type="button">Back to tests</button>
+      </div>
+    </div>
+    <p class="muted no-print" style="margin:0">Save PDF opens the print screen. Choose “Save as PDF” as the printer; the file name is filled in for you.</p>
+    <div class="sheet-scroll" id="sheetBox"></div>
+  </section>
+
+  <!-- EQUIPMENT -->
+  <section id="view-equip" hidden>
+    <div id="pinGate" class="card" style="max-width:420px">
+      <h2 class="card-h">Equipment</h2>
+      <p style="margin:0">Enter the PIN to add, edit or remove motors and gauges.</p>
+      <form id="pinForm" class="inline" autocomplete="off">
+        <input id="pinInput" class="search num" type="password" inputmode="numeric" aria-label="PIN" style="max-width:none">
+        <button class="btn primary" type="submit">Unlock</button>
+      </form>
+      <p id="pinMsg" class="muted" style="margin:0"></p>
+    </div>
+
+    <div id="equipBody" hidden>
+      <div class="test-head" style="margin-bottom:16px">
+        <h1>Equipment</h1>
+        <button id="btnLock" class="btn ghost" type="button">Lock</button>
+      </div>
+      <div class="two">
+        <div class="card">
+          <h2 class="card-h">Motors <span class="hint">FLA and SFA fill in on the test when the motor is picked</span></h2>
+          <div class="tablewrap">
+            <table class="equip-table">
+              <thead><tr><th>Motor #</th><th>FLA</th><th>SFA</th><th></th></tr></thead>
+              <tbody id="motorRows"></tbody>
+            </table>
+          </div>
+          <div><button id="btnAddMotor" class="btn" type="button">Add motor</button></div>
+        </div>
+        <div class="card">
+          <h2 class="card-h">Gauges and meters</h2>
+          <div class="tablewrap">
+            <table class="equip-table">
+              <thead><tr><th>ID</th><th>Type</th><th></th></tr></thead>
+              <tbody id="instRows"></tbody>
+            </table>
+          </div>
+          <div><button id="btnAddInst" class="btn" type="button">Add gauge or meter</button></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h2 class="card-h">Settings</h2>
+        <div class="fields">
+          <form id="pinChange" class="f" autocomplete="off">
+            <span>New PIN (4–8 digits)</span>
+            <span class="inline"><input id="newPin" class="num" type="password" inputmode="numeric"><button class="btn" type="submit">Change PIN</button></span>
+          </form>
+          <div class="f">
+            <span>Copy equipment to another tablet</span>
+            <span class="actions">
+              <button id="btnExport" class="btn" type="button">Export list</button>
+              <label class="btn" for="importFile">Import list</label>
+              <input id="importFile" type="file" accept="application/json,.json" hidden>
+            </span>
+          </div>
+        </div>
+        <div id="importConfirm" class="actions" hidden>
+          <span id="importMsg"></span>
+          <button id="btnImportApply" class="btn primary" type="button">Replace equipment list</button>
+          <button id="btnImportCancel" class="btn ghost" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- constants ----------
+  const K = { equip: 'pumptest.equipment.v1', draft: 'pumptest.draft.v1', tests: 'pumptest.tests.v1', tech: 'pumptest.lastTech' };
+  const ROWS = 12, REQUIRED_ROWS = 10;
+  const TYPES = [
+    { key: 'suctionGauge',   type: 'Suction Gauge',   label: 'Suction gauge' },
+    { key: 'dischargeGauge', type: 'Discharge Gauge', label: 'Discharge gauge' },
+    { key: 'powerMeter',     type: 'Power Meter',     label: 'Power meter' },
+    { key: 'tachometer',     type: 'Tachometer',      label: 'Tachometer' },
+    { key: 'tempMeter',      type: 'Temp Meter',      label: 'Temp. meter' },
+    { key: 'flowMeter',      type: 'Flow Meter',      label: 'Flow meter' }
+  ];
+  const COLS = [
+    { key: 'target', label: 'Target flow', unit: 'GPM' },
+    { key: 'speed',  label: 'Speed',       unit: 'RPM' },
+    { key: 'flow',   label: 'Actual flow', unit: 'GPM' },
+    { key: 'sp',     label: 'S. PSI',      unit: 'psi' },
+    { key: 'dp',     label: 'D. PSI',      unit: 'psi' },
+    { key: 'temp',   label: 'Water temp',  unit: '°F' },
+    { key: 'kw',     label: 'kW',          unit: 'kW' }
+  ];
+  const HEAD = [
+    { k: 'pumpNo',   label: 'Pump #',        req: true },
+    { k: 'pumpSize', label: 'Pump size',     req: true },
+    { k: 'impDia',   label: 'Imp. Ø',        req: true, num: true },
+    { k: 'basedOn',  label: 'Based on (GPM)', req: false, num: true },
+    { k: 'loop',     label: 'Loop',          req: true },
+    { k: 'lineHz',   label: 'Line Hz',       req: true, num: true },
+    { k: 'date',     label: 'Date',          req: true },
+    { k: 'tech',     label: 'Test tech',     req: true }
+  ];
+  const FRACS = [['0', 0], ['1/8', .125], ['1/4', .25], ['3/8', .375], ['1/2', .5], ['5/8', .625], ['3/4', .75], ['7/8', .875]];
+
+  // ---------- helpers ----------
+  const $ = s => document.querySelector(s);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  };
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const str = v => String(v == null ? '' : v).trim();
+  const isNum = v => /^-?(\d+(\.\d*)?|\.\d+)$/.test(str(v));
+  const isTarget = v => /^\d+(\.\d+)?(\s*-\s*\d+(\.\d+)?)?$/.test(str(v));
+  const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const fmtTime = iso => iso ? new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+  const fmtStamp = iso => iso ? new Date(iso).toLocaleString([], { month: 'numeric', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+  const fmtDate = ymd => { if (!ymd) return ''; const p = String(ymd).split('-'); return p.length === 3 ? (+p[1]) + '/' + (+p[2]) + '/' + p[0].slice(2) : ymd; };
+  const durMin = (a, b) => (a && b) ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 60000)) : null;
+  const fmtDur = m => m == null ? '' : Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') + ' hr';
+  const fracVal = f => (FRACS.find(x => x[0] === f) || FRACS[0])[1];
+  const heightVal = (inch, frac) => isNum(inch) ? Number(inch) + fracVal(frac) : null;
+  const heightTxt = (inch, frac) => isNum(inch) ? str(inch) + (frac && frac !== '0' ? ' ' + frac : '') + '"' : '';
+  const gaugeDif = t => { const s = heightVal(t.sghIn, t.sghFrac), d = heightVal(t.dghIn, t.dghFrac); return (s != null && d != null) ? (d - s).toFixed(3) : ''; };
+  const fileBase = t => 'Raw_Test_Data_' + (str(t.pumpNo).replace(/[^\w.-]+/g, '_') || 'pump');
+  const reduceMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let framed = true;
+  try { framed = window.self !== window.top; } catch (e) { framed = true; }
+
+  function toast(msg) {
+    const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+  // Two-tap confirm: first tap arms the button for 3 s, second tap runs fn.
+  function confirmTap(btn, armedLabel, fn) {
+    if (btn.dataset.armed) {
+      clearTimeout(+btn.dataset.armed); delete btn.dataset.armed; btn.textContent = btn.dataset.orig; fn(); return;
+    }
+    btn.dataset.orig = btn.textContent; btn.textContent = armedLabel;
+    btn.dataset.armed = String(setTimeout(() => { delete btn.dataset.armed; btn.textContent = btn.dataset.orig; }, 3000));
+  }
+  function download(name, text, mime) {
+    const blob = new Blob([text], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    if (framed) toast('Downloads work once the app is on the tablet');
+  }
+
+  // ---------- data ----------
+  function seed() {
+    return {
+      pin: '1234',
+      motors: [
+        { id: uid(), no: '48',    fla: '214', sfa: '246' },
+        { id: uid(), no: '70116', fla: '47',  sfa: '58.75' }
+      ],
+      instruments: [
+        { id: uid(), no: '70306', type: 'Suction Gauge' },
+        { id: uid(), no: '70235', type: 'Discharge Gauge' },
+        { id: uid(), no: '70124', type: 'Power Meter' },
+        { id: uid(), no: '70204', type: 'Power Meter' },
+        { id: uid(), no: '70310', type: 'Tachometer' },
+        { id: uid(), no: '70002', type: 'Temp Meter' },
+        { id: uid(), no: '70231', type: 'Flow Meter' }
+      ]
+    };
+  }
+  let equip = store.get(K.equip, null);
+  if (!equip || !Array.isArray(equip.motors) || !Array.isArray(equip.instruments)) { equip = seed(); store.set(K.equip, equip); }
+  let tests = store.get(K.tests, []);
+  if (!Array.isArray(tests)) tests = [];
+  let draft = store.get(K.draft, null);
+  const saveEquip = () => store.set(K.equip, equip);
+  const saveDraft = () => store.set(K.draft, draft);
+  const saveTests = () => { if (!store.set(K.tests, tests)) toast('Tablet storage is full. Delete old tests.'); };
+
+  function newDraft() {
+    const d = {
+      id: uid(), pumpNo: '', pumpSize: '', impDia: '', basedOn: '', loop: '', lineHz: '', date: today(),
+      tech: store.get(K.tech, '') || '', startedAt: null, notes: '',
+      rows: Array.from({ length: ROWS }, () => ({ target: '', speed: '', flow: '', sp: '', dp: '', temp: '', kw: '' })),
+      sghIn: '', sghFrac: '0', dghIn: '', dghFrac: '0', sPipe: '', dPipe: '', motor: ''
+    };
+    TYPES.forEach(t => { d[t.key] = ''; });
+    return d;
+  }
+  const rowFilled = r => COLS.every(c => str(r[c.key]));
+  const rowStarted = r => COLS.some(c => str(r[c.key]));
+
+  function validate(d) {
+    const out = [];
+    HEAD.forEach(f => {
+      const v = str(d[f.k]);
+      if (!v) { if (f.req) out.push({ id: 'f-' + f.k, label: f.label }); }
+      else if (f.num && !isNum(v)) out.push({ id: 'f-' + f.k, label: f.label + ' is not a number' });
+    });
+    d.rows.forEach((r, i) => {
+      if (i >= REQUIRED_ROWS && !rowStarted(r)) return;
+      COLS.forEach(c => {
+        const v = str(r[c.key]), id = 'r' + i + '-' + c.key;
+        if (!v) out.push({ id, label: 'Row ' + (i + 1) + ' ' + c.label });
+        else if (c.key === 'target' ? !isTarget(v) : !isNum(v)) out.push({ id, label: 'Row ' + (i + 1) + ' ' + c.label + ' is not a number' });
+      });
+    });
+    [['sghIn', 'Suction gauge height'], ['dghIn', 'Discharge gauge height'], ['sPipe', 'Suction pipe at tap'], ['dPipe', 'Discharge pipe at tap']].forEach(([k, label]) => {
+      const v = str(d[k]);
+      if (!v) out.push({ id: 'f-' + k, label });
+      else if (!isNum(v)) out.push({ id: 'f-' + k, label: label + ' is not a number' });
+    });
+    TYPES.forEach(t => { if (!d[t.key]) out.push({ id: 'f-' + t.key, label: t.label }); });
+    if (!d.motor) out.push({ id: 'f-motor', label: 'Motor #' });
+    return out;
+  }
+
+  // ---------- views ----------
+  const state = { view: 'home', showMissing: false, sheetId: null, unlocked: false, pendingImport: null };
+  function show(v) {
+    ['home', 'test', 'sheet', 'equip'].forEach(n => { $('#view-' + n).hidden = n !== v; });
+    $('#navHome').classList.toggle('on', v !== 'equip');
+    $('#navEquip').classList.toggle('on', v === 'equip');
+    state.view = v;
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- home ----------
+  function renderHome() {
+    const has = !!draft;
+    $('#draftCard').hidden = !has;
+    $('#newCard').hidden = has;
+    if (has) {
+      $('#draftTitle').textContent = str(draft.pumpNo) ? 'Pump ' + draft.pumpNo : 'Pump # not entered yet';
+      const done = draft.rows.slice(0, REQUIRED_ROWS).filter(rowFilled).length;
+      $('#draftMeta').textContent = (str(draft.pumpSize) || 'Pump size not entered') + ' · ' + done + ' of ' + REQUIRED_ROWS + ' points recorded' + (draft.startedAt ? ' · started ' + fmtTime(draft.startedAt) : '');
+    }
+    const q = str($('#search').value).toLowerCase();
+    const list = tests.filter(t => !q || str(t.pumpNo).toLowerCase().includes(q));
+    $('#testRows').innerHTML = list.map(t =>
+      '<tr><td class="num">' + esc(fmtDate(t.date)) + '</td><td class="num strong">' + esc(t.pumpNo) + '</td><td>' + esc(t.pumpSize) + '</td><td>' + esc(t.loop) + '</td><td>' + esc(t.tech) + '</td>' +
+      '<td><div class="row-actions"><button class="btn sm" type="button" data-act="view" data-id="' + esc(t.id) + '">Open sheet</button>' +
+      '<button class="btn sm" type="button" data-act="csv" data-id="' + esc(t.id) + '">CSV</button>' +
+      '<button class="btn sm ghost danger" type="button" data-act="del" data-id="' + esc(t.id) + '">Delete</button></div></td></tr>'
+    ).join('');
+    const empty = $('#emptyTests');
+    empty.hidden = list.length > 0;
+    empty.textContent = tests.length ? 'No tests match that pump #.' : 'Completed tests show up here. Open one to save it as a PDF or CSV.';
+  }
+
+  // ---------- test entry ----------
+  function buildReadings() {
+    let h = '<thead><tr><th>#</th>' + COLS.map(c => '<th>' + esc(c.label) + '<small>' + esc(c.unit) + '</small></th>').join('') + '</tr></thead><tbody>';
+    for (let i = 0; i < ROWS; i++) {
+      const cls = i >= REQUIRED_ROWS ? ' class="opt' + (i === REQUIRED_ROWS ? ' opt-start' : '') + '"' : '';
+      h += '<tr' + cls + '><td class="idx">' + (i + 1) + '</td>' + COLS.map(c =>
+        '<td class="' + (c.key === 'target' ? 'tgt' : '') + '"><input id="r' + i + '-' + c.key + '" data-r="' + i + '" data-c="' + c.key + '" inputmode="decimal" autocomplete="off" enterkeyhint="next" aria-label="Row ' + (i + 1) + ' ' + esc(c.label) + '"></td>'
+      ).join('') + '</tr>';
+    }
+    $('#readings').innerHTML = h + '</tbody>';
+  }
+  function buildCal() {
+    const sel = (key, label) => '<label class="f"><span>' + esc(label) + '</span><select id="f-' + key + '" data-f="' + key + '"></select></label>';
+    $('#calFields').innerHTML = TYPES.map(t => sel(t.key, t.label)).join('') + sel('motor', 'Motor #') +
+      '<div class="f"><span>Motor FLA</span><div class="readout" id="motorFLA">—</div></div>' +
+      '<div class="f"><span>Motor SFA</span><div class="readout" id="motorSFA">—</div></div>';
+    const fr = FRACS.map(f => '<option value="' + f[0] + '">' + (f[0] === '0' ? '+ 0' : '+ ' + f[0]) + '</option>').join('');
+    $('#f-sghFrac').innerHTML = fr; $('#f-dghFrac').innerHTML = fr;
+  }
+  function optionsFor(list, current) {
+    const items = list.filter(x => str(x.no)).map(x => str(x.no)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    let h = '<option value="">Select…</option>' + items.map(n => '<option value="' + esc(n) + '">' + esc(n) + '</option>').join('');
+    if (current && !items.includes(current)) h += '<option value="' + esc(current) + '">' + esc(current) + ' (removed)</option>';
+    return h;
+  }
+  function fillTestForm() {
+    TYPES.forEach(t => { $('#f-' + t.key).innerHTML = optionsFor(equip.instruments.filter(x => x.type === t.type), draft[t.key]); });
+    $('#f-motor').innerHTML = optionsFor(equip.motors, draft.motor);
+    document.querySelectorAll('#view-test [data-f]').forEach(el => { el.value = draft[el.dataset.f] == null ? '' : draft[el.dataset.f]; });
+    document.querySelectorAll('#readings input').forEach(el => { el.value = draft.rows[+el.dataset.r][el.dataset.c] || ''; });
+    refreshDerived();
+  }
+  function refreshClock() {
+    if (!draft) return;
+    const m = draft.startedAt ? durMin(draft.startedAt, new Date().toISOString()) : null;
+    $('#clock').textContent = draft.startedAt ? 'Started ' + fmtTime(draft.startedAt) + ' · ' + fmtDur(m) : 'Test clock starts at the first reading';
+  }
+  function refreshDerived() {
+    if (!draft) return;
+    const dif = gaugeDif(draft);
+    $('#gaugeDiff').textContent = dif ? dif + '"' : '—';
+    const m = equip.motors.find(x => str(x.no) === draft.motor);
+    $('#motorFLA').textContent = m ? (str(m.fla) || '—') : '—';
+    $('#motorSFA').textContent = m ? (str(m.sfa) || '—') : '—';
+    $('#testTitle').textContent = str(draft.pumpNo) ? 'Pump ' + draft.pumpNo : 'New test';
+    refreshClock();
+    const miss = validate(draft);
+    const left = $('#leftCount');
+    left.textContent = miss.length ? miss.length + (miss.length === 1 ? ' entry left' : ' entries left') : 'Everything is filled in';
+    left.classList.toggle('done', !miss.length);
+    if (state.showMissing) { markMissing(miss); renderMissingPanel(miss); }
+  }
+  function markMissing(miss) {
+    document.querySelectorAll('#view-test .miss').forEach(el => el.classList.remove('miss'));
+    miss.forEach(m => { const el = document.getElementById(m.id); if (el) el.classList.add('miss'); });
+  }
+  function renderMissingPanel(miss) {
+    const p = $('#missingPanel');
+    p.hidden = !miss.length;
+    if (!miss.length) return;
+    $('#missingCount').textContent = miss.length + (miss.length === 1 ? ' entry still needed before this test can be completed:' : ' entries still needed before this test can be completed:');
+    const shown = miss.slice(0, 12).map(m => '<li>' + esc(m.label) + '</li>').join('');
+    $('#missingList').innerHTML = shown + (miss.length > 12 ? '<li>and ' + (miss.length - 12) + ' more, marked in red</li>' : '');
+  }
+  function openTest() {
+    if (!draft) { draft = newDraft(); saveDraft(); }
+    state.showMissing = false;
+    $('#missingPanel').hidden = true;
+    markMissing([]);
+    fillTestForm();
+    show('test');
+  }
+
+  // ---------- completed sheet ----------
+  function sheetHTML(t) {
+    const rows = [];
+    const n = Math.max(ROWS, t.rows.length);
+    for (let i = 0; i < n; i++) {
+      const r = t.rows[i] || {};
+      rows.push('<tr><td class="idx">' + (i + 1) + '</td><td class="shade">' + esc(r.target) + '</td><td>' + esc(r.speed) + '</td><td>' + esc(r.flow) + '</td><td>' + esc(r.sp) + '</td><td>' + esc(r.dp) + '</td><td>' + esc(r.temp) + '</td><td>' + esc(r.kw) + '</td></tr>');
+    }
+    const kv = (k, v) => '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>';
+    const dif = gaugeDif(t);
+    return '<article class="sheet">' +
+      '<div class="sh-top"><div><div class="sh-title">PUMP TEST DATA SHEET</div><div class="sh-based">Based on ' + esc(str(t.basedOn) ? t.basedOn + ' GPM' : '—') + '</div></div>' +
+      '<dl class="sh-id">' + kv('Pump #:', t.pumpNo) + kv('Imp. Ø:', t.impDia) + kv('Pump size:', t.pumpSize) + '</dl></div>' +
+      '<div class="sh-mid"><table class="sh-table"><thead><tr><th></th><th class="shade">Target<br>Flow</th><th>Speed</th><th>Actual<br>Flow</th><th>S. PSI</th><th>D. PSI</th><th>Water<br>Temp.</th><th>kW</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+      '<dl class="sh-side">' + kv('Date:', fmtDate(t.date)) + kv('Loop:', t.loop) + kv('Test time:', fmtDur(durMin(t.startedAt, t.finishedAt))) + kv('Start:', fmtTime(t.startedAt)) + kv('Finish:', fmtTime(t.finishedAt)) + kv('Line Hz:', t.lineHz) + '</dl></div>' +
+      '<div class="sh-foot">' +
+        '<div><dl>' + kv('Suction gauge height', heightTxt(t.sghIn, t.sghFrac)) + kv('Discharge gauge height', heightTxt(t.dghIn, t.dghFrac)) + kv('Gauge ht dif.', dif ? dif + '"' : '') + kv('Suction pipe at the tap', str(t.sPipe) ? t.sPipe + '"' : '') + kv('Discharge pipe at the tap', str(t.dPipe) ? t.dPipe + '"' : '') + '</dl></div>' +
+        '<div><div class="sh-sub">Calibration and traceability</div><dl>' + kv('Suction gauge', t.suctionGauge) + kv('Discharge gauge', t.dischargeGauge) + kv('Power meter', t.powerMeter) + kv('Tachometer', t.tachometer) + kv('Temp. meter', t.tempMeter) + kv('Flow meter', t.flowMeter) + kv('Motor #', t.motor) + kv('Motor FLA', t.motorFLA) + kv('Motor SFA', t.motorSFA) + '</dl></div>' +
+        '<div><dl>' + kv('Test tech', t.tech) + kv('Notes', str(t.notes) || '—') + '</dl></div>' +
+      '</div>' +
+      '<div class="sh-note"><span>Recorded on the test lab tablet</span><span>Completed ' + esc(fmtStamp(t.finishedAt)) + '</span></div>' +
+      '</article>';
+  }
+  function openSheet(id) {
+    const t = tests.find(x => x.id === id);
+    if (!t) return;
+    state.sheetId = id;
+    $('#sheetTitle').textContent = 'Pump ' + t.pumpNo;
+    $('#sheetBox').innerHTML = sheetHTML(t);
+    show('sheet');
+  }
+  function csvCell(v) { v = String(v == null ? '' : v); return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function testCSV(t) {
+    const L = [];
+    const kv = (k, v) => L.push(csvCell(k) + ',' + csvCell(v));
+    const s = heightVal(t.sghIn, t.sghFrac), d = heightVal(t.dghIn, t.dghFrac);
+    L.push('Pump Test Data Sheet');
+    kv('Pump #', t.pumpNo); kv('Imp. Dia (in)', t.impDia); kv('Pump Size', t.pumpSize); kv('Based On (GPM)', t.basedOn);
+    kv('Date', t.date); kv('Loop', t.loop); kv('Line Hz', t.lineHz);
+    kv('Start Time', fmtStamp(t.startedAt)); kv('Finish Time', fmtStamp(t.finishedAt));
+    const m = durMin(t.startedAt, t.finishedAt); kv('Test Time (min)', m == null ? '' : m);
+    kv('Test Tech', t.tech);
+    L.push('');
+    L.push(['Point', 'Target Flow (GPM)', 'Speed (RPM)', 'Actual Flow (GPM)', 'S. PSI', 'D. PSI', 'Water Temp (F)', 'kW'].join(','));
+    t.rows.forEach((r, i) => L.push([i + 1, r.target, r.speed, r.flow, r.sp, r.dp, r.temp, r.kw].map(csvCell).join(',')));
+    L.push('');
+    kv('Suction Gauge Height (in)', s == null ? '' : s); kv('Discharge Gauge Height (in)', d == null ? '' : d); kv('Gauge Ht Dif (in)', gaugeDif(t));
+    kv('Suction Pipe at Tap (in)', t.sPipe); kv('Discharge Pipe at Tap (in)', t.dPipe);
+    kv('Suction Gauge', t.suctionGauge); kv('Discharge Gauge', t.dischargeGauge); kv('Power Meter', t.powerMeter);
+    kv('Tachometer', t.tachometer); kv('Temp Meter', t.tempMeter); kv('Flow Meter', t.flowMeter);
+    kv('Motor #', t.motor); kv('Motor FLA', t.motorFLA); kv('Motor SFA', t.motorSFA);
+    kv('Notes', t.notes);
+    return '﻿' + L.join('\r\n') + '\r\n';
+  }
+  function saveCSV(t) { download(fileBase(t) + '.csv', testCSV(t), 'text/csv;charset=utf-8'); }
+  function savePDF(t) {
+    const old = document.title;
+    document.title = fileBase(t);
+    const restore = () => { document.title = old; window.removeEventListener('afterprint', restore); };
+    window.addEventListener('afterprint', restore);
+    if (framed) toast('Save PDF works once the app is on the tablet');
+    window.print();
+  }
+
+  // ---------- equipment ----------
+  function dupes(list) {
+    const seen = new Set(), d = new Set();
+    list.forEach(x => { const n = str(x.no).toLowerCase(); if (!n) return; if (seen.has(n)) d.add(n); seen.add(n); });
+    return d;
+  }
+  function renderEquip() {
+    $('#pinGate').hidden = state.unlocked;
+    $('#equipBody').hidden = !state.unlocked;
+    $('#pinMsg').textContent = equip.pin === '1234' ? 'The PIN is 1234 until someone changes it.' : '';
+    if (!state.unlocked) return;
+    $('#motorRows').innerHTML = equip.motors.map(m =>
+      '<tr data-id="' + esc(m.id) + '">' +
+      '<td><input class="cell num" data-k="no" value="' + esc(m.no) + '" aria-label="Motor number" autocomplete="off"></td>' +
+      '<td><input class="cell num" data-k="fla" value="' + esc(m.fla) + '" inputmode="decimal" aria-label="FLA" autocomplete="off"></td>' +
+      '<td><input class="cell num" data-k="sfa" value="' + esc(m.sfa) + '" inputmode="decimal" aria-label="SFA" autocomplete="off"></td>' +
+      '<td><button class="btn sm ghost danger" type="button" data-act="rm">Remove</button></td></tr>'
+    ).join('');
+    const typeOpts = cur => TYPES.map(t => '<option' + (t.type === cur ? ' selected' : '') + '>' + esc(t.type) + '</option>').join('');
+    $('#instRows').innerHTML = equip.instruments.map(x =>
+      '<tr data-id="' + esc(x.id) + '">' +
+      '<td><input class="cell num" data-k="no" value="' + esc(x.no) + '" aria-label="Instrument ID" autocomplete="off"></td>' +
+      '<td><select class="cell" data-k="type" aria-label="Type">' + typeOpts(x.type) + '</select></td>' +
+      '<td><button class="btn sm ghost danger" type="button" data-act="rm">Remove</button></td></tr>'
+    ).join('');
+    markEquipIssues();
+  }
+  function markEquipIssues() {
+    const dm = dupes(equip.motors), di = dupes(equip.instruments);
+    document.querySelectorAll('#motorRows tr').forEach(tr => {
+      const m = equip.motors.find(x => x.id === tr.dataset.id); if (!m) return;
+      tr.querySelector('[data-k="no"]').classList.toggle('miss', !str(m.no) || dm.has(str(m.no).toLowerCase()));
+      tr.querySelector('[data-k="fla"]').classList.toggle('miss', !isNum(m.fla));
+      tr.querySelector('[data-k="sfa"]').classList.toggle('miss', !isNum(m.sfa));
+    });
+    document.querySelectorAll('#instRows tr').forEach(tr => {
+      const x = equip.instruments.find(y => y.id === tr.dataset.id); if (!x) return;
+      tr.querySelector('[data-k="no"]').classList.toggle('miss', !str(x.no) || di.has(str(x.no).toLowerCase()));
+    });
+  }
+  function bindEquipTable(tbodyId, listName) {
+    const tb = $(tbodyId);
+    const onEdit = e => {
+      const el = e.target.closest('[data-k]'); if (!el) return;
+      const item = equip[listName].find(x => x.id === el.closest('tr').dataset.id); if (!item) return;
+      item[el.dataset.k] = el.value; saveEquip(); markEquipIssues();
+    };
+    tb.addEventListener('input', onEdit);
+    tb.addEventListener('change', onEdit);
+    tb.addEventListener('click', e => {
+      const b = e.target.closest('[data-act="rm"]'); if (!b) return;
+      confirmTap(b, 'Tap to remove', () => {
+        const id = b.closest('tr').dataset.id;
+        equip[listName] = equip[listName].filter(x => x.id !== id);
+        saveEquip(); renderEquip(); toast('Removed');
+      });
+    });
+  }
+
+  // ---------- events ----------
+  $('#navHome').addEventListener('click', () => { renderHome(); show('home'); });
+  $('#navEquip').addEventListener('click', () => { renderEquip(); show('equip'); });
+  $('#btnNew').addEventListener('click', openTest);
+  $('#btnResume').addEventListener('click', openTest);
+  $('#btnDiscard').addEventListener('click', e => confirmTap(e.currentTarget, 'Tap again to discard', () => { draft = null; saveDraft(); renderHome(); toast('Test discarded'); }));
+  $('#btnTestHome').addEventListener('click', () => { renderHome(); show('home'); });
+  $('#btnSheetHome').addEventListener('click', () => { renderHome(); show('home'); });
+  $('#search').addEventListener('input', renderHome);
+  $('#testRows').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const t = tests.find(x => x.id === b.dataset.id); if (!t) return;
+    if (b.dataset.act === 'view') openSheet(t.id);
+    else if (b.dataset.act === 'csv') saveCSV(t);
+    else if (b.dataset.act === 'del') confirmTap(b, 'Tap to delete', () => { tests = tests.filter(x => x.id !== t.id); saveTests(); renderHome(); toast('Test deleted'); });
+  });
+
+  // Test form: every field saves to the tablet as it is typed.
+  $('#view-test').addEventListener('input', e => {
+    if (!draft) return;
+    const el = e.target;
+    if (el.dataset.f) { draft[el.dataset.f] = el.value; }
+    else if (el.dataset.r != null) {
+      draft.rows[+el.dataset.r][el.dataset.c] = el.value;
+      if (!draft.startedAt && str(el.value)) draft.startedAt = new Date().toISOString();
+    } else return;
+    saveDraft(); refreshDerived();
+  });
+  $('#view-test').addEventListener('change', e => {
+    if (!draft || !e.target.dataset.f) return;
+    draft[e.target.dataset.f] = e.target.value; saveDraft(); refreshDerived();
+  });
+  // Enter / Next on the keyboard moves to the next entry box.
+  $('#view-test').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+    e.preventDefault();
+    const all = Array.from(document.querySelectorAll('#view-test input:not([type="date"]), #view-test select'));
+    const i = all.indexOf(e.target);
+    if (i > -1 && all[i + 1]) all[i + 1].focus();
+  });
+  $('#btnComplete').addEventListener('click', () => {
+    if (!draft) return;
+    const miss = validate(draft);
+    if (miss.length) {
+      state.showMissing = true; markMissing(miss); renderMissingPanel(miss);
+      const first = document.getElementById(miss[0].id);
+      if (first) { first.scrollIntoView({ block: 'center', behavior: reduceMotion() ? 'auto' : 'smooth' }); first.focus({ preventScroll: true }); }
+      return;
+    }
+    const m = equip.motors.find(x => str(x.no) === draft.motor) || {};
+    const rec = JSON.parse(JSON.stringify(draft));
+    rec.finishedAt = new Date().toISOString();
+    if (!rec.startedAt) rec.startedAt = rec.finishedAt;
+    rec.motorFLA = str(m.fla); rec.motorSFA = str(m.sfa);
+    rec.rows = rec.rows.filter((r, i) => i < REQUIRED_ROWS || rowStarted(r));
+    tests.unshift(rec); saveTests();
+    store.set(K.tech, str(draft.tech));
+    draft = null; saveDraft();
+    state.showMissing = false;
+    openSheet(rec.id);
+    toast('Test saved');
+  });
+  $('#btnPdf').addEventListener('click', () => { const t = tests.find(x => x.id === state.sheetId); if (t) savePDF(t); });
+  $('#btnCsv').addEventListener('click', () => { const t = tests.find(x => x.id === state.sheetId); if (t) saveCSV(t); });
+
+  // Equipment
+  $('#pinForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if ($('#pinInput').value === String(equip.pin || '1234')) { state.unlocked = true; $('#pinInput').value = ''; renderEquip(); }
+    else { $('#pinMsg').textContent = 'That PIN is not right. Try again.'; $('#pinInput').select(); }
+  });
+  $('#btnLock').addEventListener('click', () => { state.unlocked = false; renderEquip(); });
+  bindEquipTable('#motorRows', 'motors');
+  bindEquipTable('#instRows', 'instruments');
+  $('#btnAddMotor').addEventListener('click', () => {
+    equip.motors.push({ id: uid(), no: '', fla: '', sfa: '' }); saveEquip(); renderEquip();
+    const last = document.querySelector('#motorRows tr:last-child input'); if (last) last.focus();
+  });
+  $('#btnAddInst').addEventListener('click', () => {
+    equip.instruments.push({ id: uid(), no: '', type: TYPES[0].type }); saveEquip(); renderEquip();
+    const last = document.querySelector('#instRows tr:last-child input'); if (last) last.focus();
+  });
+  $('#pinChange').addEventListener('submit', e => {
+    e.preventDefault();
+    const v = $('#newPin').value.trim();
+    if (!/^\d{4,8}$/.test(v)) { toast('Use 4 to 8 digits'); return; }
+    equip.pin = v; saveEquip(); $('#newPin').value = ''; toast('PIN changed');
+  });
+  $('#btnExport').addEventListener('click', () => {
+    download('pump-test-equipment.json', JSON.stringify({ motors: equip.motors, instruments: equip.instruments }, null, 2), 'application/json');
+  });
+  $('#importFile').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const data = JSON.parse(r.result);
+        if (!Array.isArray(data.motors) || !Array.isArray(data.instruments)) throw new Error('shape');
+        state.pendingImport = {
+          motors: data.motors.map(m => ({ id: uid(), no: str(m.no), fla: str(m.fla), sfa: str(m.sfa) })),
+          instruments: data.instruments.map(x => ({ id: uid(), no: str(x.no), type: TYPES.some(t => t.type === x.type) ? x.type : TYPES[0].type }))
+        };
+        $('#importMsg').textContent = 'File has ' + state.pendingImport.motors.length + ' motors and ' + state.pendingImport.instruments.length + ' gauges and meters.';
+        $('#importConfirm').hidden = false;
+      } catch (err) { toast('That file is not an equipment list from this app'); }
+      e.target.value = '';
+    };
+    r.readAsText(f);
+  });
+  $('#btnImportApply').addEventListener('click', () => {
+    if (!state.pendingImport) return;
+    equip.motors = state.pendingImport.motors; equip.instruments = state.pendingImport.instruments;
+    state.pendingImport = null; saveEquip(); $('#importConfirm').hidden = true; renderEquip(); toast('Equipment list replaced');
+  });
+  $('#btnImportCancel').addEventListener('click', () => { state.pendingImport = null; $('#importConfirm').hidden = true; });
+
+  // ---------- start ----------
+  buildReadings();
+  buildCal();
+  renderHome();
+  show('home');
+  setInterval(() => { if (state.view === 'test') refreshClock(); }, 30000);
+  $('#previewNote').hidden = !framed;
+  if (!framed) {
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+
+</body>
+</html>
